@@ -1,7 +1,24 @@
 package com.yawar.next_forge_ai.entity.enums;
 
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.Set;
+
+import static com.yawar.next_forge_ai.entity.enums.ProjectPermission.*;
+
+
+@Getter
 public enum ProjectMemberRole {
-    OWNER,
-    EDITOR,
-    VIEWER
+    OWNER(EDIT,VIEW,MANAGE_MEMBERS,VIEW_MEMBERS,DELETE),
+    EDITOR(VIEW,EDIT,VIEW_MEMBERS,DELETE),
+    VIEWER(VIEW,VIEW_MEMBERS);
+
+    ProjectMemberRole(ProjectPermission... permission){
+        this.permission = permission;
+    }
+
+    private final ProjectPermission[] permission;
 }

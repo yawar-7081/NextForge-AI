@@ -23,4 +23,13 @@ public interface UserRepository extends JpaRepository<User,String> {
             @NotBlank(message = "'username' cannot be blank or empty in repository call")
             @Param("username") String username
     );
+
+    @Query("""
+        SELECT u FROM User u 
+        WHERE (u.email = :identifier OR u.username = :identifier) 
+        AND u.isActive = true 
+        AND u.isDeleted = false
+    """)
+    Optional<User> findActiveOrUndeletedUserByIdentifier(@Param("identifier") String identifier);
+
 }

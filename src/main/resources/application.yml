@@ -30,6 +30,8 @@ server:
   servlet:
     context-path: /nextforgeai/api/v1
 
+jwt.secret-key: ${jwt.secret-key}
+
 minio:
   url: http://localhost:9000
   access-key: minioadmin

@@ -42,10 +42,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
             throw new BadRequestException("Can Not Add YourSelf");
         }
 
-//         if(projectMemberRepository.findProjectMemberByProjectIdAndUserId(project.getId(), invitee.getId()).isPresent()){
-//             throw new BadRequestException("User is Already Present - "+invitee.getUsername());
-//         }
-
         ProjectMember projectMember = projectMemberRepository.findProjectMemberByProjectIdAndUserId(project.getId(), invitee.getId()).get();
 
         if(projectMember!=null){
