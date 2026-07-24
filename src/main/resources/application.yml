@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: next-forge-ai
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nextforgeai
+    username: postgres
+    password: 1234567890
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  ai:
+    openai:
+      api-key: ${openapi.api-key}
+      base-url: https://openrouter.ai/api
+      chat:
+        options:
+          model: google/gemini-3-flash-preview
+          temperature: 0.0
+
+server:
+  servlet:
+    context-path: /nextforgeai/api/v1
+
+minio:
+  url: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin123
+  project-bucket: projects
