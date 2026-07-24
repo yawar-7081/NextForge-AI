@@ -15,13 +15,12 @@ import java.util.Optional;
 public interface ProjectRepository extends JpaRepository<Project, String> {
 
     @Query("""
-            SELECT p as project, pm.projectRole as role 
+            SELECT p as project, pm.projectMemberRole as role 
             FROM Project p
             JOIN ProjectMember pm ON p.id = pm.project.id
             WHERE pm.project.id = :projectId
             AND pm.user.id = :userId
             AND p.isDeleted = false
-            
             """)
     Optional<ProjectWithRole> getInMemberProject(@Param("projectId") String projectId, @Param("userId") String userId);
 
@@ -40,7 +39,7 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
 
 
     @Query("""
-        SELECT p as project, pm.projectRole as role
+        SELECT p as project, pm.projectMemberRole as role
         FROM Project p
         JOIN ProjectMember pm ON p.id = pm.project.id
         WHERE pm.user.id = :userId
@@ -48,4 +47,14 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
         ORDER BY p.updatedAt DESC
 """)
     List<ProjectWithRole> findAllAccessibleProjects(@Param("userId") String userId);
+
+    @Query("""
+        SELECT p FROM Project p
+        JOIN ProjectMember pm ON p.id = pm.project.id
+        WHERE pm.user.id = :userId
+        AND p.id = :projectId
+        AND pm.projectMemberRole = com.yawar.next_forge_ai.entity.enums.ProjectMemberRole.OWNER
+        AND p.isDeleted = false
+    """)
+    Optional<Project> getOwnerProject(@Param("projectId") String projectId,@Param("userId") String userId);
 }

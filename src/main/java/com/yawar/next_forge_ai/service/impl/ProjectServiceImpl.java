@@ -6,8 +6,7 @@ import com.yawar.next_forge_ai.dto.ProjectSummaryResponse;
 import com.yawar.next_forge_ai.entity.Project;
 import com.yawar.next_forge_ai.entity.ProjectMember;
 import com.yawar.next_forge_ai.entity.User;
-import com.yawar.next_forge_ai.entity.enums.ProjectRole;
-import com.yawar.next_forge_ai.entity.enums.Provider;
+import com.yawar.next_forge_ai.entity.enums.ProjectMemberRole;
 import com.yawar.next_forge_ai.error.ResourceNotFoundException;
 import com.yawar.next_forge_ai.projection.ProjectWithRole;
 import com.yawar.next_forge_ai.repository.ProjectMemberRepository;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
-import java.nio.ReadOnlyBufferException;
 import java.util.List;
 
 
@@ -34,12 +32,14 @@ public class ProjectServiceImpl implements ProjectService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
+    private final String userId = "50ca1f20-e0c0-4bae-aff6-6f13d6137512";
+
     @Override
     public ProjectResponse createProject(ProjectRequest projectRequest) {
 
         // User ID
-        User tempUser = userRepository.findByEmail("admin@nextforge.ai").orElseThrow(
-                () -> new ResourceNotFoundException("User","admin@nextforge.ai")
+        User tempUser = userRepository.findByEmail("admin1@nextforge.ai").orElseThrow(
+                () -> new ResourceNotFoundException("User","admin1@nextforge.ai")
         );
 
         Project newProject = Project.builder()
@@ -52,7 +52,7 @@ public class ProjectServiceImpl implements ProjectService {
         ProjectMember projectMember = ProjectMember.builder()
                 .project(newProject)
                 .user(tempUser)
-                .projectRole(ProjectRole.OWNER)
+                .projectMemberRole(ProjectMemberRole.OWNER)
                 .build();
 
         projectMemberRepository.save(projectMember);
@@ -65,7 +65,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectSummaryResponse getProjectById(String projectId) {
 
-        String userId = "1e3924fa-c453-4f34-8430-187c04ee57c8";
 
         ProjectWithRole project = projectRepository.getInMemberProject(projectId,userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
@@ -82,7 +81,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public ProjectResponse updateProject(String projectId, ProjectRequest projectRequest) {
-        String userId = "3edf66bd-ca86-4b0c-b3fb-b1443168b830";
 
         Project project = projectRepository.findAccessibleProject(projectId,userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
@@ -95,7 +93,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public void deleteProject(String projectId) {
-        String userId = "1e3924fa-c453-4f34-8430-187c04ee57c8";
         Project project = projectRepository.findAccessibleProject(projectId,userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
 
@@ -104,7 +101,6 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectSummaryResponse> getAllAccessibleProject() {
-        String userId = "1e3924fa-c453-4f34-8430-187c04ee57c8";
         List<ProjectWithRole> projects = projectRepository.findAllAccessibleProjects(userId);
         return projects.stream().map(project -> new ProjectSummaryResponse(
                 project.getProject().getId(),

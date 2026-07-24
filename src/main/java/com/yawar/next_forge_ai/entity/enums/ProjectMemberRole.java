@@ -1,6 +1,6 @@
 package com.yawar.next_forge_ai.entity.enums;
 
-public enum ProjectRole {
+public enum ProjectMemberRole {
     OWNER,
     EDITOR,
     VIEWER
