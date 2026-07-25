@@ -12,6 +12,7 @@ import com.yawar.next_forge_ai.projection.ProjectWithRole;
 import com.yawar.next_forge_ai.repository.ProjectMemberRepository;
 import com.yawar.next_forge_ai.repository.ProjectRepository;
 import com.yawar.next_forge_ai.repository.UserRepository;
+import com.yawar.next_forge_ai.security.JwtService;
 import com.yawar.next_forge_ai.service.ProjectService;
 import com.yawar.next_forge_ai.service.ProjectTemplateService;
 import jakarta.transaction.Transactional;
@@ -31,19 +32,18 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectTemplateService projectTemplateService;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
-
-    private final String userId = "50ca1f20-e0c0-4bae-aff6-6f13d6137512";
+    private final JwtService jwtService;
 
     @Override
     public ProjectResponse createProject(ProjectRequest projectRequest) {
 
-        // User ID
-        User tempUser = userRepository.findByActiveEmail("admin1@nextforge.ai").orElseThrow(
-                () -> new ResourceNotFoundException("User","admin1@nextforge.ai")
-        );
+        User user = userRepository.findById(jwtService.getLoggedInUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User", jwtService.getLoggedInUserId()));
+
+
 
         Project newProject = Project.builder()
-                .user(tempUser)
+                .user(user)
                 .name(projectRequest.getProjectName())
                 .build();
 
@@ -51,7 +51,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         ProjectMember projectMember = ProjectMember.builder()
                 .project(newProject)
-                .user(tempUser)
+                .user(user)
                 .projectMemberRole(ProjectMemberRole.OWNER)
                 .build();
 
@@ -65,6 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectSummaryResponse getProjectById(String projectId) {
 
+        String userId = jwtService.getLoggedInUserId();
 
         ProjectWithRole project = projectRepository.getInMemberProject(projectId,userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
@@ -81,7 +82,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public ProjectResponse updateProject(String projectId, ProjectRequest projectRequest) {
-
+        String userId = jwtService.getLoggedInUserId();
         Project project = projectRepository.findAccessibleProject(projectId,userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
 
@@ -93,6 +94,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public void deleteProject(String projectId) {
+        String userId = jwtService.getLoggedInUserId();
         Project project = projectRepository.findAccessibleProject(projectId,userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
 
@@ -101,6 +103,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public List<ProjectSummaryResponse> getAllAccessibleProject() {
+        String userId = jwtService.getLoggedInUserId();
         List<ProjectWithRole> projects = projectRepository.findAllAccessibleProjects(userId);
         return projects.stream().map(project -> new ProjectSummaryResponse(
                 project.getProject().getId(),

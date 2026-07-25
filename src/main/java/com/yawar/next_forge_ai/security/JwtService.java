@@ -5,6 +5,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -79,10 +82,11 @@ public class JwtService {
                 && !isTokenExpired(token);
     }
 
-    private Key getSignInKey() {
-        byte[] keyBytes =
-                Decoders.BASE64.decode(SECRET_KEY);
-        return Keys.hmacShaKeyFor(keyBytes);
+    public String getLoggedInUserId(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetail userDetail)){
+            throw new AuthenticationCredentialsNotFoundException("Jwt Not Found");
+        }
+        return userDetail.getUser().getId();
     }
-
 }

@@ -4,9 +4,10 @@ import com.yawar.next_forge_ai.dto.ProjectFileContentResponse;
 import com.yawar.next_forge_ai.dto.ProjectFileResponse;
 import com.yawar.next_forge_ai.entity.Project;
 import com.yawar.next_forge_ai.entity.ProjectFile;
-import com.yawar.next_forge_ai.error.ResourceNotFoundException;
+import com.yawar.next_forge_ai.error.BadRequestException;
 import com.yawar.next_forge_ai.repository.ProjectFileRepository;
 import com.yawar.next_forge_ai.repository.ProjectRepository;
+import com.yawar.next_forge_ai.security.JwtService;
 import com.yawar.next_forge_ai.service.ProjectFileService;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
@@ -26,11 +27,15 @@ public class ProjectFileServiceImpl implements ProjectFileService {
     private final ProjectRepository projectRepository;
     private final ProjectFileRepository projectFileRepository;
     private final MinioClient minioClient;
+    private final JwtService jwtService;
 
     private static final String BUCKET_NAME = "projects";
 
     @Override
     public List<ProjectFileResponse> getProjectFilePaths(String projectId) {
+        String userId = jwtService.getLoggedInUserId();
+        Project project = projectRepository.findAccessibleProject(projectId,userId)
+                .orElseThrow(() -> new BadRequestException("You can't access this project file tree"));
 
         List<ProjectFile> projectFiles = projectFileRepository.findByProjectId(projectId);
 
@@ -42,6 +47,10 @@ public class ProjectFileServiceImpl implements ProjectFileService {
 
     @Override
     public ProjectFileContentResponse getProjectPathContent(String projectId, String path) {
+
+        String userId = jwtService.getLoggedInUserId();
+        Project project = projectRepository.findAccessibleProject(projectId,userId)
+                .orElseThrow(() -> new BadRequestException("You can't access this project file tree"));
 
         String objectName = projectId + "/" +  path;
 
