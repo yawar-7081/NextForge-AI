@@ -3,9 +3,9 @@ spring:
     name: next-forge-ai
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/nextforgeai
-    username: postgres
-    password: 1234567890
+    url: ${datasource.url}
+    username: ${datasource.username}
+    password: ${datasource.password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -23,8 +23,20 @@ spring:
       base-url: https://openrouter.ai/api
       chat:
         options:
-          model: google/gemini-3-flash-preview
+          model: ${openapi.chat.model}
           temperature: 0.0
+
+  mail:
+    host: ${mail.host}
+    port: ${mail.port}
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          auth: ${mail.properties.mail.smtp.auth}
+          starttls:
+            enable: ${mail.properties.mail.smtp.starttls.enable}
 
 server:
   servlet:
@@ -32,8 +44,14 @@ server:
 
 jwt.secret-key: ${jwt.secret-key}
 
+frontend:
+  url: http://localhost:5432
+
 minio:
   url: http://localhost:9000
   access-key: minioadmin
   secret-key: minioadmin123
   project-bucket: projects
+
+
+

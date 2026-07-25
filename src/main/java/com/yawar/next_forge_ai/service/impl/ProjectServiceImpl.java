@@ -38,7 +38,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponse createProject(ProjectRequest projectRequest) {
 
         // User ID
-        User tempUser = userRepository.findByEmail("admin1@nextforge.ai").orElseThrow(
+        User tempUser = userRepository.findByActiveEmail("admin1@nextforge.ai").orElseThrow(
                 () -> new ResourceNotFoundException("User","admin1@nextforge.ai")
         );
 

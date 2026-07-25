@@ -11,6 +11,15 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,String> {
+
+    @Query("""
+        SELECT u FROM User u
+        WHERE u.email = :email
+        AND u.isDeleted = false
+        AND u.isActive = true
+    """)
+    Optional<User> findByActiveEmail(String email);
+
     Optional<User> findByEmail(String email);
 
     @Query("""
@@ -21,6 +30,15 @@ public interface UserRepository extends JpaRepository<User,String> {
     """)
     Optional<User> findByUsername(
             @NotBlank(message = "'username' cannot be blank or empty in repository call")
+            @Param("username") String username
+    );
+
+    @Query("""
+    SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END 
+    FROM User u
+    WHERE u.username = :username
+""")
+    boolean existsByUsername(
             @Param("username") String username
     );
 
