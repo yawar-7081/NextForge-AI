@@ -20,10 +20,10 @@ public class ProjectFileController {
     ProjectFileService projectFileService;
 
     @GetMapping
-    public ResponseEntity<List<ProjectFileResponse>> getProjectPaths(
+    public ResponseEntity<ProjectFileResponse> getProjectPaths(
             @PathVariable(value = "projectId", required = true) String projectId
     ){
-        List<ProjectFileResponse> responses = projectFileService.getProjectFilePaths(projectId);
+        ProjectFileResponse responses = projectFileService.getProjectFilePaths(projectId);
         return ResponseEntity.ok(responses);
     }
 

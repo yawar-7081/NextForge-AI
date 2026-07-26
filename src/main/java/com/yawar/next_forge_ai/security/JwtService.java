@@ -1,5 +1,6 @@
 package com.yawar.next_forge_ai.security;
 
+import com.yawar.next_forge_ai.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -88,5 +89,13 @@ public class JwtService {
             throw new AuthenticationCredentialsNotFoundException("Jwt Not Found");
         }
         return userDetail.getUser().getId();
+    }
+
+    public User extractUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetail userDetail)){
+            throw new AuthenticationCredentialsNotFoundException("Jwt Not Found");
+        }
+        return userDetail.getUser();
     }
 }

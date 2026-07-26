@@ -1,16 +1,17 @@
 package com.yawar.next_forge_ai.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-@Builder
 @AllArgsConstructor
-public class ProjectFileResponse {
-    List<FileNode> paths;
+public class FileNode {
+    private String path;
+
+    @Override
+    public String toString() {
+        return path;
+    }
 }

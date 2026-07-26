@@ -53,5 +53,7 @@ minio:
   secret-key: minioadmin123
   project-bucket: projects
 
-
+logging:
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: DEBUG
 

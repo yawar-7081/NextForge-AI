@@ -50,6 +50,9 @@ public class ChatMessage {
     @Column(nullable = false)
     Long tokenUsed = 0L;
 
+    @Column(nullable = false)
+    String content;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     MessageRole role;
