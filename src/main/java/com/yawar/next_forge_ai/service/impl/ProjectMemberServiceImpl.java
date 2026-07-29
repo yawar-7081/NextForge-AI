@@ -43,7 +43,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
             throw new BadRequestException("Can Not Add YourSelf");
         }
 
-        ProjectMember projectMember = projectMemberRepository.findProjectMemberByProjectIdAndUserId(project.getId(), invitee.getId()).get();
+        ProjectMember projectMember = projectMemberRepository.findProjectMemberByProjectIdAndUserId(project.getId(), invitee.getId()).orElse(null);
 
         if(projectMember!=null){
             if(!projectMember.isDeleted()) {
@@ -51,9 +51,11 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
             }
             projectMember.setDeleted(false);
         }else{
+            projectMember = new ProjectMember();
             projectMember.setProject(project);
             projectMember.setUser(invitee);
             projectMember.setProjectMemberRole(request.getRole());
+            projectMember.setDeleted(false);
         }
 
 

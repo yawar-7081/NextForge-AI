@@ -23,11 +23,11 @@ public interface UserRepository extends JpaRepository<User,String> {
     Optional<User> findByEmail(String email);
 
     @Query("""
-        SELECT u FROM User u
-        WHERE u.username = :username
-        AND u.isDeleted = false
-        AND u.isActive = true
-    """)
+    SELECT u FROM User u
+    WHERE (LOWER(u.username) = LOWER(:username) OR LOWER(u.email) = LOWER(:username))
+    AND u.isDeleted = false
+    AND u.isActive = true
+""")
     Optional<User> findByUsername(
             @NotBlank(message = "'username' cannot be blank or empty in repository call")
             @Param("username") String username

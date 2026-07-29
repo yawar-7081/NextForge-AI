@@ -45,7 +45,7 @@ server:
 jwt.secret-key: ${jwt.secret-key}
 
 frontend:
-  url: http://localhost:5432
+  url: http://localhost:5173
 
 minio:
   url: http://localhost:9000

@@ -13,13 +13,13 @@ import com.yawar.next_forge_ai.repository.*;
 import com.yawar.next_forge_ai.security.JwtService;
 import com.yawar.next_forge_ai.service.AiGenerationService;
 import com.yawar.next_forge_ai.service.ProjectFileService;
+import com.yawar.next_forge_ai.service.UsageService;
 import com.yawar.next_forge_ai.util.PromptUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.metadata.Usage;
-import org.springframework.ai.model.openai.autoconfigure.OpenAiChatProperties;
+import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -42,6 +42,8 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ChatEventParser chatEventParser;
+    private final UsageService usageService;
+
 
     @Override
     public Flux<StreamResponse> streamResponse(String message, String projectId) {
@@ -61,6 +63,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
 
         AtomicReference<Long> startTime = new AtomicReference<>(0L);
         AtomicReference<Long> endTime = new AtomicReference<>(0L);
+        AtomicReference<Usage> usage = new AtomicReference<>();
 
         return chatClient.prompt()
                 .system(PromptUtils.CODE_GENERATION_SYSTEM_PROMPT)
@@ -81,10 +84,14 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                         endTime.set(System.currentTimeMillis());
                     }
 
+                    if(response.getMetadata().getUsage() != null){
+                        usage.set(response.getMetadata().getUsage());
+                    }
+
                 })
                 .doOnComplete(() -> {
                     Long duration = (endTime.get() - startTime.get()) / 1000;
-                    finalizeChats(chatSession,fullResponseBuffer,message,projectId,duration);
+                    finalizeChats(chatSession,fullResponseBuffer,message,projectId,duration,usage.get(),userId);
                 })
                 .doOnError(error -> {
                     log.error("Error while generating code - {}",error.toString());
@@ -95,7 +102,12 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 });
     }
 
-    private void finalizeChats(ChatSession chatSession, StringBuilder fullResponseBuffer, String userMessage,String projectId, Long duration) {
+    private void finalizeChats(ChatSession chatSession, StringBuilder fullResponseBuffer, String userMessage,String projectId, Long duration,Usage usage,String userId) {
+
+        if(usage != null){
+            Long token = Long.valueOf(usage.getCompletionTokens());
+            usageService.recordToken(token,userId);
+        }
 
         ChatMessage userChatMessage = ChatMessage.builder()
                 .chatSession(chatSession)
@@ -138,8 +150,8 @@ public class AiGenerationServiceImpl implements AiGenerationService {
             Project project = projectRepository.findAccessibleProject(projectId,userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Project",projectId));
 
-            User user = jwtService.extractUser();
-
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User",userId));
 
             chatSession = ChatSession
                     .builder()

@@ -91,11 +91,4 @@ public class JwtService {
         return userDetail.getUser().getId();
     }
 
-    public User extractUser(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetail userDetail)){
-            throw new AuthenticationCredentialsNotFoundException("Jwt Not Found");
-        }
-        return userDetail.getUser();
-    }
 }

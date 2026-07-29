@@ -27,6 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
 
         httpSecurity.csrf(csrf -> csrf.disable())
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/errors", "/auth/**", "/v3/api-docs").permitAll()
                             .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()

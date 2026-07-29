@@ -26,9 +26,9 @@ public class AuthController {
             value = "/register",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Void> register(@Valid @RequestBody(required = true) RegisterRequest request) throws MessagingException {
-        authService.register(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<RegisterResponse> register(@Valid @RequestBody(required = true) RegisterRequest request) throws MessagingException {
+        RegisterResponse response=authService.register(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(

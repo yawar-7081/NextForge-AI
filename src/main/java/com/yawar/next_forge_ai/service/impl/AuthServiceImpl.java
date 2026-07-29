@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public void register(RegisterRequest request) throws MessagingException {
+    public RegisterResponse register(RegisterRequest request) throws MessagingException {
 
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
@@ -91,6 +91,8 @@ public class AuthServiceImpl implements AuthService {
         log.info("User Id - {}",user.getId());
         log.info("==========================================================");
         emailService.sendOtpEmail(user.getEmail(), otp, user.getName());
+
+        return new RegisterResponse(user.getId());
     }
 
     private String generateUniqueUsername(String email) {

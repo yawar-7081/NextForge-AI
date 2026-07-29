@@ -74,6 +74,12 @@
 			<artifactId>minio</artifactId>
 			<version>8.6.0</version>
 		</dependency>
+		<!-- Stripe -->
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>32.1.0</version>
+		</dependency>
 
 
 		<!--		for accessing the okhttp3.HttpUrl-->

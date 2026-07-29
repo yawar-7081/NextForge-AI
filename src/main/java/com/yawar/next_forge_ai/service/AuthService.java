@@ -6,7 +6,7 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
 public interface AuthService {
-    void register(@Valid RegisterRequest request) throws MessagingException;
+    RegisterResponse register(@Valid RegisterRequest request) throws MessagingException;
 
     AuthResponse verifyOtpAndFilnalizeRegister(String userId, @Valid OtpRequest request);
 
